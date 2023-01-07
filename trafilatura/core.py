@@ -825,6 +825,10 @@ def bare_extraction(filecontent, url=None, no_fallback=False,
             LOGGER.error('wrong HTML meta language for URL %s', url)
             raise ValueError
 
+        # prune the tree by custom xpaths
+        if prune_xpaths is not None:
+            tree = prune_unwanted_nodes(tree, prune_xpaths)
+
         # extract metadata if necessary
         if output_format != 'txt':
             document = extract_metadata(tree, url, date_extraction_params, no_fallback, author_blacklist)
@@ -849,10 +853,6 @@ def bare_extraction(filecontent, url=None, no_fallback=False,
         # clean + use LXML cleaner
         cleaned_tree = tree_cleaning(tree, include_tables, include_images)
         cleaned_tree_backup = deepcopy(cleaned_tree)
-
-        # prune the tree by custom xpaths
-        if prune_xpaths is not None:
-            cleaned_tree = prune_unwanted_nodes(cleaned_tree, prune_xpaths)
 
         # convert tags, the rest does not work without conversion
         cleaned_tree = convert_tags(cleaned_tree, include_formatting, include_tables, include_images, include_links)
